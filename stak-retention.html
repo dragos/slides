@@ -107,19 +107,18 @@
         </section>
 
         <section>
-          <h2>Debugging concurrent programs</h2>
+          <h2>Actors, futures, parallel collections</h2>
+
+          <h3>use a thread-pool for executing their computations</h3>
 
           <ul>
-            <li class="fragment">Concurrent programs have many executing threads</li>
             <li class="fragment">Each future (or actor) may execute on a different thread</li>
             <li class="fragment">The <strong>call-stack</strong> and the control-flow are no longer the same</li>
           </ul>
         </section>
 
         <section data-markdown>
-          ## Actors, futures, parallel collections
-
-          ### use a thread-pool for executing their computations
+          # Let's fix it
         </section>
 
 <!--         <section>
@@ -129,7 +128,7 @@
         </section>
  -->
 
-        <section data-markdown>
+<!--         <section data-markdown>
         # Debuggers
 
         - Event-based (log/trace based)
@@ -140,7 +139,7 @@
           - interact with a *live* sytem
           - the standard for sequential programs
         </section>
-
+ -->
         <section data-markdown>
           ## Improving breakpoint-based debuggers
 
@@ -149,14 +148,47 @@
             - actor message send
           - .. *all* data on the stack frame
             - location, local variable values, fields
-          - attach it to relevant object
-            - future
+        </section>
+
+        <section data-markdown>
+          ## Improving breakpoint-based debuggers
+
+          - attach it to one or more relevant objects
+            - future and future body
             - message object
           - Present them in addition to existing information when a breakpoint is hit
         </section>
 
         <section data-markdown>
           ![eclipse](img/eclipse-screenshot.png)
+        </section>
+
+        <section>
+          <h1>Implementation</h1>
+          
+          <ul>
+            <li>automatically add a breakpoint at POIs (method entry point)</li>
+            <li class="fragment">when a breakpoint is hit</li>
+            <ul>
+              <li class="fragment">collect stack-data</li>
+              <li class="fragment">associate data with object of interest (usually the argument to the POI)</li>
+              <li class="fragment">resume program</li>
+            </ul>
+          </ul>  
+        </section>
+
+        <section data-markdown>
+          # Example
+
+          For an actor, the POI is a message send:
+
+          ```scala
+          override def !(msg: Any) {
+            send(msg, Actor.rawSelf(scheduler))
+          }```
+
+          - `scala.actors.InternalReplyReactor$class.$bang`
+          - the carrier is `msg`
         </section>
 
         <section data-markdown>
@@ -167,6 +199,15 @@
 
         <section data-markdown>
           # Demo!
+        </section>
+
+        <section data-markdown>
+          # Other uses
+
+          - parallel collections
+          - code that reifies continuations
+            - Play *iteratees*
+          - sequential debuggers (record the call-stack at user-defined POIs)
         </section>
 
         <section data-markdown>
